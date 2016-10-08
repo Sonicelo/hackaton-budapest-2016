@@ -1,6 +1,6 @@
 // Shorthand for $( document ).ready()
 $(function() {
-    var ipAddress = "192.168.1.101:8080";
+    var ipAddress = "http://192.168.0.101:8080";
     var sound;
 
     var displayImage = function(imageID){
@@ -21,9 +21,9 @@ $(function() {
 
     var theLoop = function(){
         var data = {
-            url: ipAddress + 'data.json' ,
+            url: ipAddress + '/data.json' ,
             data: {},
-            type: "POST",
+            type: "GET",
             dataType: "json"
         };
 
