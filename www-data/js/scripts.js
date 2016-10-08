@@ -80,6 +80,12 @@ $(function () {
         $('.image').css('background-image', '');
         $(this).prop('disabled', true);
         $('#start').prop('disabled', false);
+        $.ajax({
+            url: ipAddress + '/reset.json',
+            data: {},
+            type: "GET",
+            dataType: "json"
+        });
     });
 
     console.log("Neurofeedback Loop Ready!");
