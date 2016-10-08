@@ -32,6 +32,10 @@ $(function () {
         if (remote) {
             $.ajax(data).done(function (json) {
                 if (typeof json.done !== 'undefined') {
+                    $('.image').css('background-image', '');
+
+                    $('#start').prop('disabled', false);
+                    $('#stop').prop('disabled', true);
                     clearTimeout(intervalID);
                     return false;
                 }

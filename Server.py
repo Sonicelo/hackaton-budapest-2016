@@ -1,47 +1,104 @@
 from BaseHTTPServer import BaseHTTPRequestHandler, HTTPServer
 from os import curdir, sep
+import os, random, itertools, urllib, pylsl
+
 
 PORT_NUMBER = 8080
 
+info = pylsl.StreamInfo('MyMarkerStream', 'Markers', 1, 0, 'string', 'myuidw43536')
+
+
+outlet = pylsl.StreamOutlet(info)
+
+all_pics = list()
+list_samples = list()
+list_data = list()
+
+list_chian = list()
 
 # This class will handles any incoming request from
 # the browser
+
+cur_index = 0
+cur_time = 0
+
+def gen_data():
+    random.seed(123)
+    global list_data, all_pics, list_samples, list_chian
+    all_pics = list()
+    list_samples = list()
+    list_data = list()
+
+    list_data = random.sample(next(os.walk('./www-data/images'))[1], 5)
+
+    for a in list_data:
+        temp = list()
+        for b in os.listdir("./www-data/images/" + a):
+            temp += random.sample([""+a+"/"+b+"/"+x for x in os.listdir("./www-data/images/" + a + "/" + b)], 6)
+        list_samples.append(temp)
+        for ah in list_samples:
+            for bh in ah:
+                if bh not in all_pics:
+                    all_pics.append(bh)
+
+    list_chian = list(itertools.chain.from_iterable(list_samples))
+
+
 class myHandler(BaseHTTPRequestHandler):
     # Handler for the GET requests
     def do_GET(self):
+        global cur_time, cur_index, list_chian
         if self.path == "/":
             self.path = "/index.html"
+        self.path = urllib.unquote(self.path).decode('utf8')
 
         try:
             # Check the file extension required and
             # set the right mime type
 
             sendReply = False
-            if "display_json" in self.path:
-                self.send_response(200)
-                self.send_header("Content-type", "application/json")
-                self.end_headers()
-                self.wfile.write("""{"menu": {
-  "id": "file",
-  "value": "File",
-  "popup": {
-    "menuitem": [
-      {"value": "New", "onclick": "CreateNewDoc()"},
-      {"value": "Open", "onclick": "OpenDoc()"},
-      {"value": "Close", "onclick": "CloseDoc()"}
-    ]
-  }
-}}""")
+            if "data.json" in self.path:
+                cur_time += 1
+                cur_index = cur_time/20
+
+                if cur_index == len(list_chian):
+                    cur_index = 0
+                    cur_time = 0
+                    gen_data()
+                    outlet.push_sample(["done"])
+                    self.send_response(200)
+                    self.send_header("Content-type", "application/json")
+                    self.end_headers()
+                    self.wfile.write('{"done": "' + list_chian[cur_index] + '"}')
+                else:
+                    self.send_response(200)
+                    self.send_header("Content-type", "application/json")
+                    self.end_headers()
+                    self.wfile.write('{"image": "' + list_chian[cur_index] + '"}')
                 return
+            elif "reset.json" in self.path:
+                gen_data()
+                cur_index = 0
+                cur_time = 0
             else:
                 if self.path.endswith(".html"):
                     mimetype = 'text/html'
                     sendReply = True
                 if self.path.endswith(".jpg"):
                     mimetype = 'image/jpg'
+                    outlet.push_sample([self.path])
                     sendReply = True
+                if self.path.endswith(".jpeg"):
+                    mimetype = 'image/jpeg'
+                    sendReply = True
+                    outlet.push_sample([self.path])
                 if self.path.endswith(".gif"):
                     mimetype = 'image/gif'
+                    outlet.push_sample([self.path])
+                    sendReply = True
+                if self.path.endswith(".png"):
+                    mimetype = 'image/png'
+                    outlet.push_sample([self.path])
                     sendReply = True
                 if self.path.endswith(".js"):
                     mimetype = 'application/javascript'
@@ -73,6 +130,8 @@ class myHandler(BaseHTTPRequestHandler):
 try:
     # Create a web server and define the handler to manage the
     # incoming request
+
+    gen_data()
     server = HTTPServer(('', PORT_NUMBER), myHandler)
     print 'Started httpserver on port ', PORT_NUMBER
 
