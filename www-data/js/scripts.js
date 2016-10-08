@@ -9,9 +9,7 @@ $(function () {
         $(".image").css('background-image', "url('images/" + imageID + "')");
         $.ajax({
             url: ipAddress + '/markerpoint',
-            data: {
-                image: imageID
-            },
+            data: { },
             type: "GET",
             dataType: "json"
         });
