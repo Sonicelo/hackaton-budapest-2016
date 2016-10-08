@@ -1,7 +1,7 @@
 // Shorthand for $( document ).ready()
 $(function () {
     var ipAddress = "http://192.168.0.101:8080";
-    var remote = false;
+    var remote = true;
     var line = 0;
     var sound, intervalID, counter;
 
