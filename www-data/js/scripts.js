@@ -1,37 +1,37 @@
 // Shorthand for $( document ).ready()
-$(function() {
+$(function () {
     var ipAddress = "http://192.168.0.101:8080";
-    var remote = false;
+    var remote = true;
     var line = 0;
     var sound, intervalID, counter;
 
-    var displayImage = function(imageID){
-         $(".image").css('background-image', "url('images/" + decodeURI(imageID) + "')");
+    var displayImage = function (imageID) {
+        $(".image").css('background-image', "url('images/" + imageID + "')");
     };
 
 
-    var stopSound = function(){
-        if(typeof sound !== 'undefined'){
+    var stopSound = function () {
+        if (typeof sound !== 'undefined') {
             sound.stop();
         }
     };
 
-    var playSound = function(soundTrack){
+    var playSound = function (soundTrack) {
         sound = new Howl([soundTrack]);
         sound.start();
     };
 
     var data = {
-        url: ipAddress + '/data.json' ,
+        url: ipAddress + '/data.json',
         data: {},
         type: "GET",
         dataType: "json"
     };
-    var theLoop = function(){
+    var theLoop = function () {
 
-        if(remote) {
+        if (remote) {
             $.ajax(data).done(function (json) {
-                if(typeof json.done !== 'undefined'){
+                if (typeof json.done !== 'undefined') {
                     clearTimeout(intervalID);
                     return false;
                 }
@@ -48,7 +48,7 @@ $(function() {
                 clearTimeout(intervalID);
             });
             intervalID = setTimeout(theLoop, 100);
-        }else{
+        } else {
             displayImage(test_case_1[line]);
             $(".preload").css('background-image', "url('images/" + test_case_1[line + 1] + "')");
             line++;
@@ -56,8 +56,29 @@ $(function() {
         }
     };
 
-        console.log( "Neurofeedback Loop Ready!" );
-        theLoop();
+
+    $('#focus').click(function () {
+        $('.background').removeClass('relax-gradient').addClass('focus-gradient');
+    });
+
+    $('#relax').click(function () {
+        $('.background').addClass('relax-gradient').removeClass('focus-gradient');
+    });
+
+    $('#start').click(function () {
+        setTimeout(theLoop, 4000);
+        $(this).prop('disabled', true);
+        $('#stop').prop('disabled', false);
+    });
+
+    $('#stop').click(function () {
+        clearTimeout(intervalID);
+        $('.image').css('background-image', '');
+        $(this).prop('disabled', true);
+        $('#start').prop('disabled', false);
+    });
+
+    console.log("Neurofeedback Loop Ready!");
 });
 
 var test_case_1 = ['Epic - Calm/Calm/0000001.jpg',

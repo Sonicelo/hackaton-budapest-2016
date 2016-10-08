@@ -1,18 +1,22 @@
-.fixed{
+.fixed {
     position: fixed;
 }
 
-.background{
+.background {
     z-index: 10;
     background-color: #EFEFEF;
     top: 0;
     bottom: 0;
     left: 0;
     right: 0;
+    -webkit-transition: linear-gradient 2s ease-in-out;
+    -moz-transition: linear-gradient 2s ease-in-out;
+    -o-transition: linear-gradient 2s ease-in-out;
+    transition: linear-gradient 2s ease-in-out;
 }
 
-.image{
-    opacity: 0.7;
+.image {
+    opacity: 0.75;
     z-index: 20;
     top: 10%;
     bottom: 10%;
@@ -20,7 +24,7 @@
     right: 10%;
     background-position: center center;
     background-origin: content-box;
-    background-size:  cover;
+    background-size: cover;
     background-repeat: no-repeat;
     background-color: transparent;
     -webkit-transition: background-image 0.25s ease-in-out;
@@ -30,24 +34,115 @@
 
 }
 
-.preload{
+.preload {
     z-index: -9999;
     background-position: 999999px 999999px;
     background-repeat: no-repeat;
 }
 
-.controls{
+.controls {
     position: fixed;
     top: 10px;
     left: 10px;
     right: 10px;
     text-align: center;
     z-index: 50;
-
 }
 
-.controls button{
+.controls button {
     width: 100px;
     height: 30px;
     cursor: pointer;
+}
+
+.relax-gradient {
+    background: linear-gradient(138deg, #EDCFE8, #CFE8ED, #EDD0CF, #CFEDD0);
+    background-size: 800% 800%;
+
+    -webkit-animation: AnimationRelax 20s ease infinite;
+    -moz-animation: AnimationRelax 20s ease infinite;
+    animation: AnimationRelax 20s ease infinite;
+}
+
+@-webkit-keyframes AnimationRelax {
+    0% {
+        background-position: 0% 33%
+    }
+    50% {
+        background-position: 100% 68%
+    }
+    100% {
+        background-position: 0% 33%
+    }
+}
+
+@-moz-keyframes AnimationRelax {
+    0% {
+        background-position: 0% 33%
+    }
+    50% {
+        background-position: 100% 68%
+    }
+    100% {
+        background-position: 0% 33%
+    }
+}
+
+@keyframes AnimationRelax {
+    0% {
+        background-position: 0% 33%
+    }
+    50% {
+        background-position: 100% 68%
+    }
+    100% {
+        background-position: 0% 33%
+    }
+}
+
+.focus-gradient {
+
+    background: linear-gradient(349deg, #FBC662, #F08A83, #72C182, #6B80D2);
+    background-size: 800% 800%;
+
+    -webkit-animation: AnimationFocus 15s ease infinite;
+    -moz-animation: AnimationFocus 15s ease infinite;
+    animation: AnimationFocus 15s ease infinite;
+
+}
+
+@-webkit-keyframes AnimationFocus {
+    0% {
+        background-position: 97% 0%
+    }
+    50% {
+        background-position: 4% 100%
+    }
+    100% {
+        background-position: 97% 0%
+    }
+}
+
+@-moz-keyframes AnimationFocus {
+    0% {
+        background-position: 97% 0%
+    }
+    50% {
+        background-position: 4% 100%
+    }
+    100% {
+        background-position: 97% 0%
+    }
+}
+
+@keyframes AnimationFocus {
+    0% {
+        background-position: 97% 0%
+    }
+    50% {
+        background-position: 4% 100%
+    }
+    100% {
+        background-position: 97% 0%
+    }
 }
