@@ -1,7 +1,7 @@
 // Shorthand for $( document ).ready()
 $(function() {
     var ipAddress = "192.168.1.101:8080";
-    var sound;
+    var sound, intervalID;
 
     var displayImage = function(imageID){
          $(".image").css('background-image', "url('images/" + imageID + "')")
@@ -38,9 +38,10 @@ $(function() {
 
         }).fail(function (xhr, status, errorThrown){
             alert('An Error occoured (sad face).');
+            clearTimeout(intervalID);
         });
 
-        setTimeout(theLoop, 100);
+        intervalID = setTimeout(theLoop, 100);
     };
 
     theLoop();
