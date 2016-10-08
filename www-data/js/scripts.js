@@ -1,12 +1,12 @@
 // Shorthand for $( document ).ready()
 $(function() {
     var ipAddress = "http://192.168.0.101:8080";
-    var remote = false;
+    var remote = true;
     var line = 0;
     var sound, intervalID, counter;
 
     var displayImage = function(imageID){
-         $(".image").css('background-image', "url('images/" + decodeURI(imageID) + "')");
+         $(".image").css('background-image', "url('images/" + imageID + "')");
     };
 
 
@@ -56,8 +56,29 @@ $(function() {
         }
     };
 
-        console.log( "Neurofeedback Loop Ready!" );
+
+    $('#focus').click(function(){
+
+    });
+
+    $('#relax').click(function(){
+
+    });
+
+    $('#start').click(function(){
         theLoop();
+        $(this).prop('disabled', true);
+        $('#stop').prop('disabled', false);
+    });
+
+    $('#stop').click(function(){
+        clearTimeout(intervalID);
+        $('.image').css('background-image', '');
+        $(this).prop('disabled', true);
+        $('#start').prop('disabled', false);
+    });
+
+    console.log( "Neurofeedback Loop Ready!" );
 });
 
 var test_case_1 = ['Epic - Calm/Calm/0000001.jpg',
