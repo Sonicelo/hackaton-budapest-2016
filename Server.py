@@ -52,7 +52,7 @@ class myHandler(BaseHTTPRequestHandler):
 
                 if sendReply == True:
                     # Open the static file requested and send it
-                    f = open(curdir + sep + self.path)
+                    f = open(curdir + sep + 'www-data' + sep + self.path)
                     self.send_response(200)
                     self.send_header('Content-type', mimetype)
                     self.end_headers()
