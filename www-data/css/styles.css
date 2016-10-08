@@ -29,3 +29,25 @@
     transition: background-image 0.25s ease-in-out;
 
 }
+
+.preload{
+    z-index: -9999;
+    background-position: 999999px 999999px;
+    background-repeat: no-repeat;
+}
+
+.controls{
+    position: fixed;
+    top: 10px;
+    left: 10px;
+    right: 10px;
+    text-align: center;
+    z-index: 50;
+
+}
+
+.controls button{
+    width: 100px;
+    height: 30px;
+    cursor: pointer;
+}

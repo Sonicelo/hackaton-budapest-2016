@@ -1,12 +1,12 @@
 // Shorthand for $( document ).ready()
 $(function() {
     var ipAddress = "http://192.168.0.101:8080";
-    var remote = true;
+    var remote = false;
     var line = 0;
-    var sound, intervalID;
+    var sound, intervalID, counter;
 
     var displayImage = function(imageID){
-         $(".image").css('background-image', "url('images/" + imageID + "')")
+         $(".image").css('background-image', "url('images/" + decodeURI(imageID) + "')");
     };
 
 
@@ -31,6 +31,10 @@ $(function() {
 
         if(remote) {
             $.ajax(data).done(function (json) {
+                if(typeof json.done !== 'undefined'){
+                    clearTimeout(intervalID);
+                    return false;
+                }
                 if (typeof json.image !== 'undefined') {
                     displayImage(json.image);
                 }
@@ -46,6 +50,7 @@ $(function() {
             intervalID = setTimeout(theLoop, 100);
         }else{
             displayImage(test_case_1[line]);
+            $(".preload").css('background-image', "url('images/" + test_case_1[line + 1] + "')");
             line++;
             intervalID = setTimeout(theLoop, 2000);
         }
