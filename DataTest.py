@@ -1,15 +1,33 @@
 from pylsl import StreamInlet, resolve_stream
+import sys
+import time
+from threading import Thread
 
-# first resolve an EEG stream on the lab network
-print("looking for an EEG stream...")
-streams = resolve_stream('type', 'EEG')
+allData = list()
+allMarkers = list()
+go1 = True
 
-# create a new inlet to read from the stream
-inlet = StreamInlet(streams[0])
+def myData():
+    global allData, go1
+    streams1 = resolve_stream('name', 'filteredStream')
+    inlet1 = StreamInlet(streams1[0])
+    while go1:
+        sample, timestamp = inlet1.pull_sample()
+        print ",".join([str(a) for a in sample])+","+str(timestamp)
 
-while True:
-    # get a new sample (you can also omit the timestamp part if you're not
-    # interested in it)
-    sample, timestamp = inlet.pull_sample()
-    print sample
+def myMarkers():
+    global allMarkers
+    streams2 = resolve_stream('name', 'FilteredStream-markers')
+    inlet2 = StreamInlet(streams2[0])
+    while len(allMarkers) < 45:
+        sample, timestamp = inlet2.pull_sample()
+        go1= False
+        print "got %s at time %s" % (sample[0], timestamp)
 
+
+
+t1 = Thread(target=myMarkers)
+t1.start()
+
+t2 = Thread(target=myData)
+t2.start()

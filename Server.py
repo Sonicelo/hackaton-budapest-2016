@@ -58,10 +58,12 @@ class myHandler(BaseHTTPRequestHandler):
 
             sendReply = False
             if "data.json" in self.path:
+                if cur_time == 0:
+                    outlet.push_sample(["start"])
                 cur_time += 1
                 cur_index = cur_time/20
 
-                if cur_index == len(list_chian):
+                if cur_index == len(list_chian)-1:
                     cur_index = 0
                     cur_time = 0
                     gen_data()
@@ -77,28 +79,27 @@ class myHandler(BaseHTTPRequestHandler):
                     self.wfile.write('{"image": "' + list_chian[cur_index] + '"}')
                 return
             elif "reset.json" in self.path:
+                outlet.push_sample(["start"])
                 gen_data()
                 cur_index = 0
                 cur_time = 0
+            elif "markpoint" in self.path:
+                outlet.push_sample(list_chian[cur_index])
             else:
                 if self.path.endswith(".html"):
                     mimetype = 'text/html'
                     sendReply = True
                 if self.path.endswith(".jpg"):
                     mimetype = 'image/jpg'
-                    outlet.push_sample([self.path])
                     sendReply = True
                 if self.path.endswith(".jpeg"):
                     mimetype = 'image/jpeg'
                     sendReply = True
-                    outlet.push_sample([self.path])
                 if self.path.endswith(".gif"):
                     mimetype = 'image/gif'
-                    outlet.push_sample([self.path])
                     sendReply = True
                 if self.path.endswith(".png"):
                     mimetype = 'image/png'
-                    outlet.push_sample([self.path])
                     sendReply = True
                 if self.path.endswith(".js"):
                     mimetype = 'application/javascript'
