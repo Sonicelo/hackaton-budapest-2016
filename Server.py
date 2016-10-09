@@ -1,5 +1,5 @@
 from BaseHTTPServer import BaseHTTPRequestHandler, HTTPServer
-from os import curdir, sep
+from os import curdir, sep, listdir
 import os, random, itertools, urllib, pylsl
 from mimetypes import MimeTypes
 import urllib
@@ -34,8 +34,8 @@ def gen_data():
 
     for a in list_data:
         temp = list()
-        for b in os.listdir("./www-data/images/" + a):
-            temp += random.sample([""+a+"/"+b+"/"+x for x in os.listdir("./www-data/images/" + a + "/" + b)], 6)
+        for b in listdir("./www-data/images/" + a):
+            temp += random.sample([""+a+"/"+b+"/"+x for x in listdir("./www-data/images/" + a + "/" + b)], 6)
         list_samples.append(temp)
         for ah in list_samples:
             for bh in ah:
@@ -76,15 +76,18 @@ class myHandler(BaseHTTPRequestHandler):
 
             elif "reset.json" in self.path:
                 # Reset acquisition
-                outlet.push_sample(["start"])
+                outlet.push_sample(["done"])
                 gen_data()
                 cur_index = 0
                 cur_time = 0
 
+            elif "all_images" in self.path:
+                # TODO implement
+                pass
+
             elif "markpoint" in self.path:
                 # Send markpoint
-                outlet.push_sample(list_chain[cur_index])
-                data = "  "
+                outlet.push_sample([list_chain[cur_index]])
 
             else:
                 # Find out file MIME type

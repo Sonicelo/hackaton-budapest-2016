@@ -3,12 +3,14 @@ $(function () {
     var ipAddress = window.location.origin;
     var remote = true;
     var line = 0;
-    var sound, intervalID, counter;
+    var sound, intervalID, counter, oldImageID;
 
     var displayImage = function (imageID) {
         $(".image").css('background-image', "url('images/" + imageID + "')");
+        oldImageID = imageID;
+
         $.ajax({
-            url: ipAddress + '/markerpoint',
+            url: ipAddress + '/markpoint',
             data: {},
             type: "GET",
             dataType: "json"
@@ -46,7 +48,7 @@ $(function () {
                     return false;
                 }
                 if (typeof json.image !== 'undefined') {
-                    if($(".image").css('background-image') != "url('images/" + json.image + "')") {
+                    if(json.image != oldImageID) {
                         displayImage(json.image);
                     }
                 }
