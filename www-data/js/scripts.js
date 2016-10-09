@@ -1,14 +1,15 @@
 // Shorthand for $( document ).ready()
 $(function () {
-    var ipAddress = "http://192.168.0.101:8080";
-    var remote = true;
+    var ipAddress = window.location.origin;
     var line = 0;
-    var sound, intervalID, counter;
+    var sound, intervalID, counter, oldImageID;
 
     var displayImage = function (imageID) {
         $(".image").css('background-image', "url('images/" + imageID + "')");
+        oldImageID = imageID;
+
         $.ajax({
-            url: ipAddress + '/markerpoint',
+            url: ipAddress + '/markpoint',
             data: {},
             type: "GET",
             dataType: "json"
@@ -27,45 +28,58 @@ $(function () {
         sound.start();
     };
 
+    // Preload all the images (response slow)
+    $.ajax({
+        url: ipAddress + '/all_images',
+        type: 'GET',
+    }).done(function (resp) {
+        function preload(images, index) {
+            index = index || 0;
+            if (images && index < images.length) {
+                var img = new Image();
+                img.src = 'images/' + resp.images[index];
+                img.onload = function () {
+                    preload(images, index + 1);
+                }
+            } else {
+              $(".loading").css("display", "none");
+            }
+        }
+
+        preload(resp.images);
+    }).fail(function(resp) {
+      console.log("all image loading failed");
+    });
+
     var data = {
         url: ipAddress + '/data.json',
-        data: {},
-        type: "GET",
-        dataType: "json"
+        type: "GET"
     };
     var theLoop = function () {
+        $.ajax(data).done(function (json) {
+            if (typeof json.done !== 'undefined') {
+                $('.image').css('background-image', '');
 
-        if (remote) {
-            $.ajax(data).done(function (json) {
-                if (typeof json.done !== 'undefined') {
-                    $('.image').css('background-image', '');
-
-                    $('#start').prop('disabled', false);
-                    $('#stop').prop('disabled', true);
-                    clearTimeout(intervalID);
-                    return false;
-                }
-                if (typeof json.image !== 'undefined') {
-                    if($(".image").css('background-image') != "url('images/" + json.image + "')") {
-                        displayImage(json.image);
-                    }
-                }
-                if (typeof json.sound !== 'undefined') {
-                    stopSound();
-                    playSound(json.sound);
-                }
-
-            }).fail(function (xhr, status, errorThrown) {
-                alert('An Error occoured (sad face).');
+                $('#start').prop('disabled', false);
+                $('#stop').prop('disabled', true);
                 clearTimeout(intervalID);
-            });
-            intervalID = setTimeout(theLoop, 100);
-        } else {
-            displayImage(test_case_1[line]);
-            $(".preload").css('background-image', "url('images/" + test_case_1[line + 1] + "')");
-            line++;
-            intervalID = setTimeout(theLoop, 2000);
-        }
+                return false;
+            }
+            if (typeof json.image !== 'undefined') {
+                if(json.image != oldImageID) {
+                    displayImage(json.image);
+                }
+            }
+            if (typeof json.sound !== 'undefined') {
+                stopSound();
+                playSound(json.sound);
+            }
+
+        }).fail(function (xhr, status, errorThrown) {
+            alert('An Error occoured (sad face).');
+            clearTimeout(intervalID);
+        });
+        intervalID = setTimeout(theLoop, 100);
     };
 
 
@@ -98,4 +112,3 @@ $(function () {
 
     console.log("Neurofeedback Loop Ready!");
 });
-
