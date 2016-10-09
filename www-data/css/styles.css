@@ -147,4 +147,8 @@
     }
 }
 
-.no-flick{-webkit-transform:translate3d(0,0,0);}
+.no-flick{
+    -webkit-transform: scale(1);
+    -webkit-backface-visibility: hidden;
+
+}
