@@ -59,7 +59,6 @@ $(function () {
         $.ajax(data).done(function (json) {
             if (typeof json.done !== 'undefined') {
                 $('.image').css('background-image', '');
-
                 $('#start').prop('disabled', false);
                 $('#stop').prop('disabled', true);
                 clearTimeout(intervalID);
@@ -92,7 +91,7 @@ $(function () {
     });
 
     $('#start').click(function () {
-        setTimeout(theLoop, 4000);
+        intervalID = setTimeout(theLoop, 4000);
         $(this).prop('disabled', true);
         $('#stop').prop('disabled', false);
     });

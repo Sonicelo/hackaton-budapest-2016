@@ -146,3 +146,5 @@
         background-position: 97% 0%
     }
 }
+
+.no-flick{-webkit-transform:translate3d(0,0,0);}
