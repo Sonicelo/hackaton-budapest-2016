@@ -150,5 +150,4 @@
 .no-flick{
     -webkit-transform: scale(1);
     -webkit-backface-visibility: hidden;
-
 }
