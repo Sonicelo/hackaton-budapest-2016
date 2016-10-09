@@ -46,7 +46,9 @@ $(function () {
                     return false;
                 }
                 if (typeof json.image !== 'undefined') {
-                    displayImage(json.image);
+                    if($(".image").css('background-image') != "url('images/" + json.image + "')") {
+                        displayImage(json.image);
+                    }
                 }
                 if (typeof json.sound !== 'undefined') {
                     stopSound();
