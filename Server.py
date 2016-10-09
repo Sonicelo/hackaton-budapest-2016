@@ -85,6 +85,12 @@ class myHandler(BaseHTTPRequestHandler):
                 cur_time = 0
             elif "markpoint" in self.path:
                 outlet.push_sample(list_chian[cur_index])
+                self.send_response(200)
+                self.send_header("Content-type", "application/json")
+                self.end_headers()
+                self.wfile.write("  ")
+
+
             else:
                 if self.path.endswith(".html"):
                     mimetype = 'text/html'
