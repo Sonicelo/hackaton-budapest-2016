@@ -1,7 +1,7 @@
 
 // Shorthand for $( document ).ready()
 $(function() {
-    var ipAddress = "http://192.168.0.101:8080";
+    var ipAddress = window.location.origin;
     var sound, intervalID;
 
     var displayImage = function(imageID){

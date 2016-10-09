@@ -1,20 +1,21 @@
 from BaseHTTPServer import BaseHTTPRequestHandler, HTTPServer
 from os import curdir, sep
 import os, random, itertools, urllib, pylsl
+from mimetypes import MimeTypes
+import urllib
 
-
+# Web server configuration
 PORT_NUMBER = 8080
 
 info = pylsl.StreamInfo('MyMarkerStream', 'Markers', 1, 0, 'string', 'myuidw43536')
 
-
+mime = MimeTypes()
 outlet = pylsl.StreamOutlet(info)
 
 all_pics = list()
 list_samples = list()
 list_data = list()
-
-list_chian = list()
+list_chain = list()
 
 # This class will handles any incoming request from
 # the browser
@@ -24,7 +25,7 @@ cur_time = 0
 
 def gen_data():
     random.seed(123)
-    global list_data, all_pics, list_samples, list_chian
+    global list_data, all_pics, list_samples, list_chain
     all_pics = list()
     list_samples = list()
     list_data = list()
@@ -41,95 +42,68 @@ def gen_data():
                 if bh not in all_pics:
                     all_pics.append(bh)
 
-    list_chian = list(itertools.chain.from_iterable(list_samples))
-
+    list_chain = list(itertools.chain.from_iterable(list_samples))
 
 class myHandler(BaseHTTPRequestHandler):
+
     # Handler for the GET requests
     def do_GET(self):
-        global cur_time, cur_index, list_chian
+        global cur_time, cur_index, list_chain
         if self.path == "/":
             self.path = "/index.html"
         self.path = urllib.unquote(self.path).decode('utf8')
 
         try:
-            # Check the file extension required and
-            # set the right mime type
+            mimeType = "application/json" # Default MIME type
+            data = None
 
-            sendReply = False
             if "data.json" in self.path:
+                # Send next file (or done)
                 if cur_time == 0:
                     outlet.push_sample(["start"])
                 cur_time += 1
                 cur_index = cur_time/20
 
-                if cur_index == len(list_chian)-1:
+                resp_type = "image"
+                if cur_index == len(list_chain)-1:
                     cur_index = 0
                     cur_time = 0
                     gen_data()
                     outlet.push_sample(["done"])
-                    self.send_response(200)
-                    self.send_header("Content-type", "application/json")
-                    self.end_headers()
-                    self.wfile.write('{"done": "' + list_chian[cur_index] + '"}')
-                else:
-                    self.send_response(200)
-                    self.send_header("Content-type", "application/json")
-                    self.end_headers()
-                    self.wfile.write('{"image": "' + list_chian[cur_index] + '"}')
-                return
+                    resp_type = "done"
+
+                data = '{"' + resp_type + '": "' + list_chain[cur_index] + '"}'
+
             elif "reset.json" in self.path:
+                # Reset acquisition
                 outlet.push_sample(["start"])
                 gen_data()
                 cur_index = 0
                 cur_time = 0
-            elif "markpoint" in self.path:
-                outlet.push_sample(list_chian[cur_index])
-                self.send_response(200)
-                self.send_header("Content-type", "application/json")
-                self.end_headers()
-                self.wfile.write("  ")
 
+            elif "markpoint" in self.path:
+                # Send markpoint
+                outlet.push_sample(list_chain[cur_index])
+                data = "  "
 
             else:
-                if self.path.endswith(".html"):
-                    mimetype = 'text/html'
-                    sendReply = True
-                if self.path.endswith(".jpg"):
-                    mimetype = 'image/jpg'
-                    sendReply = True
-                if self.path.endswith(".jpeg"):
-                    mimetype = 'image/jpeg'
-                    sendReply = True
-                if self.path.endswith(".gif"):
-                    mimetype = 'image/gif'
-                    sendReply = True
-                if self.path.endswith(".png"):
-                    mimetype = 'image/png'
-                    sendReply = True
-                if self.path.endswith(".js"):
-                    mimetype = 'application/javascript'
-                    sendReply = True
-                if self.path.endswith(".css"):
-                    mimetype = 'text/css'
-                    sendReply = True
-                if self.path.endswith(".json"):
-                    mimetype = 'application/json'
-                    sendReply = True
+                # Find out file MIME type
+                mimeType = mime.guess_type(urllib.pathname2url(self.path))
+                f = open(curdir + sep + 'www-data' + self.path)
+                data = f.read()
+                f.close()
 
-                if sendReply == True:
-                    # Open the static file requested and send it
+            # Send response
+            self.send_response(200)
+            self.send_header("Content-type", mimeType)
+            self.end_headers()
 
-                    f = open(curdir + sep + 'www-data' + self.path)
-                    self.send_response(200)
-                    self.send_header('Content-type', mimetype)
-                    self.end_headers()
-                    self.wfile.write(f.read())
-                    f.close()
-                return
-
+            # Along with data if applicable
+            if data:
+                self.wfile.write(data)
 
         except IOError, e:
+            # Show muh errorz
             print e
             self.send_error(404, 'File Not Found: %s' % self.path)
 
