@@ -1,6 +1,6 @@
 from BaseHTTPServer import BaseHTTPRequestHandler, HTTPServer
-from os import curdir, sep, listdir
-import os, random, itertools, urllib, pylsl
+from os import curdir, sep, listdir, walk, path
+import random, itertools, urllib, pylsl
 from mimetypes import MimeTypes
 import urllib
 
@@ -30,7 +30,7 @@ def gen_data():
     list_samples = list()
     list_data = list()
 
-    list_data = random.sample(next(os.walk('./www-data/images'))[1], 5)
+    list_data = random.sample(next(walk('./www-data/images'))[1], 5)
 
     for a in list_data:
         temp = list()
@@ -82,8 +82,13 @@ class myHandler(BaseHTTPRequestHandler):
                 cur_time = 0
 
             elif "all_images" in self.path:
-                # TODO implement
-                pass
+                images = []
+                for root, dirnames, filenames in walk('www-data/images'):
+                    for filename in filenames:
+                        if filename.endswith(".jpg"):
+                            images.append(path.join(root, filename).lstrip('www-data/images'))
+
+                data = '{"images": ["' + '", "'.join(images) + '"]}'
 
             elif "markpoint" in self.path:
                 # Send markpoint
